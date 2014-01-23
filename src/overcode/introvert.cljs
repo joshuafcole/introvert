@@ -29,7 +29,7 @@
   ([obj] (seq->js obj (atom ()))))
 
 (defn map->js
-  "Converts a mal-like value into a JS Object."
+  "Converts a map-like value into a JS Object."
   ([obj visited]
    (if (visit obj visited)
      (let [out (js-obj)]

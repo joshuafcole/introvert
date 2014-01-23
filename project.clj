@@ -1,5 +1,27 @@
-(defproject introvert "0.1.0-SNAPSHOT"
+(defproject introvert "0.1.0"
   :description "A small utility belt for introspecting into clojurescript."
   :url "http://github.com/joshuafcole/cljs-introvert"
-  :dependencies [[org.clojure/clojure "1.5.1"]]
-  :cljsbuild {:builds [{}]})
+  :dependencies [[org.clojure/clojure "1.5.1"]
+                 [org.clojure/clojurescript "0.0-2127"]]
+  :plugins [[lein-cljsbuild "1.0.1"]
+            [com.cemerick/clojurescript.test "0.2.1"]]
+
+
+
+  :hooks [leiningen.cljsbuild]
+  :cljsbuild {:builds [{:source-paths ["src" "test"]
+                        :compiler {:optimizations :advanced
+                                   :source-map "target/introvert.js.map"
+                                   :output-to "target/introvert.js"
+                                   :output-dir "target/cljs/"
+                                   :pretty-print true}}]
+
+              :test-commands {"unit-tests" ["phantomjs" :runner
+                                          "window.literal_js_was_evaluated=true"
+                                          "target/introvert.js"]}
+
+;;               :test-commands {"unit-tests"
+;;                               ["nodejs"
+;;                                "resources/nodejs_runner.js"
+;;                                "target/introvert.js"]}
+              })
