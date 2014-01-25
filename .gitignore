@@ -1,2 +1,5 @@
 .nrepl-port
 target/
+out/
+repl/
+.lein-failures
