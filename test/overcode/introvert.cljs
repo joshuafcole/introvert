@@ -103,4 +103,25 @@
     (is (introvert/->js b)
         b-js)))
 
+(deftest circular-seq->flattened-js
+  (let [a (atom [1])
+        b [9 a]
+        a-js (array 1 "Circular Seq")
+        b-js (array 9 a-js)]
 
+    (swap! a conj b)
+    (.push a-js b)
+
+    (is (introvert/->js b true)
+        b-js)))
+
+(deftest circular-map->flattened-js
+  (let [a (atom {:1 1})
+        b {:9 9 :a a}
+        a-js (js-obj "1" 1 "Circular Map")
+        b-js (js-obj "9" 9 "a" a-js)]
+
+    (swap! a assoc :b b)
+
+    (is (introvert/->js b true)
+        b-js)))

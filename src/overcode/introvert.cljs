@@ -23,50 +23,67 @@
 
 (defn seq->js
   "Converts a seq-like value into a JS Array."
-  ([obj visited]
+  ([obj flat visited]
    (let [was-visited (visited? visited obj)]
      (if was-visited
-       was-visited
+       (if flat
+         "Circular Seq"
+         was-visited)
        (let [out (array)]
          (visit! visited obj out)
-         (array-append out (map #(->js % visited) obj))))))
+         (array-append out (map #(->js % flat visited) obj))))))
 
-
-  ([obj] (seq->js obj (atom {}))))
+  ([obj flat] (seq->js obj flat (atom {})))
+  ([obj] (seq->js obj false (atom {}))))
 
 (defn map->js
   "Converts a map-like value into a JS Object."
-  ([obj visited]
+  ([obj flat visited]
    (let [was-visited (visited? visited obj)]
      (if was-visited
-       was-visited
+       (if flat
+         "Circular Map"
+         was-visited)
        (let [out (js-obj)]
          (visit! visited obj out)
          (doall
           (map
-           #(let [key (->js (first %)  visited)
-                  val (->js (second %) visited)]
+           #(let [key (->js (first %)  flat visited)
+                  val (->js (second %) flat visited)]
               (aset out key val))
            obj))
          out))))
 
-  ([obj] (map->js obj (atom {}))))
+  ([obj flat] (map->js obj flat (atom {})))
+  ([obj] (map->js obj false (atom {}))))
 
 (defn ->js
   "Converts a cljs data structure into a close JS approximation."
-  ([obj visited]
+  ([obj flat visited]
    (condp = (type obj)
      cljs.core/Keyword (name obj)
      cljs.core/Symbol  (name obj)
-     cljs.core/Atom    (->js @obj visited)
+     cljs.core/Atom    (->js @obj flat visited)
 
-     cljs.core/IndexedSeq        (seq->js obj visited)
-     cljs.core/LazySeq           (seq->js obj visited)
-     cljs.core/PersistentVector  (seq->js obj visited)
-     cljs.core/PersistentHashSet (seq->js obj visited)
+     cljs.core/IndexedSeq        (seq->js obj flat visited)
+     cljs.core/LazySeq           (seq->js obj flat visited)
+     cljs.core/PersistentVector  (seq->js obj flat visited)
+     cljs.core/PersistentHashSet (seq->js obj flat visited)
 
-     cljs.core/PersistentArrayMap (map->js obj visited)
-     cljs.core/PersistentHashMap  (map->js obj visited)
+     cljs.core/PersistentArrayMap (map->js obj flat visited)
+     cljs.core/PersistentHashMap  (map->js obj flat visited)
      obj))
 
-  ([obj] (->js obj (atom {}))))
+  ([obj flat] (->js obj flat (atom {})))
+  ([obj] (->js obj false (atom {}))))
+
+
+(.log js/console (let [a (atom [1])
+      b [9 a]
+      a-js (array 1)
+      b-js (array 9 a-js)]
+
+  (swap! a conj b)
+  (.push a-js b)
+
+  (seq->js b true)))
