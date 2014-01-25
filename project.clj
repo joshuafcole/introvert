@@ -1,6 +1,6 @@
 (defproject introvert "0.1.0"
   :description "A small utility belt for introspecting into clojurescript."
-  :url "http://github.com/joshuafcole/cljs-introvert"
+  :url "http://github.com/joshuafcole/introvert"
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/clojurescript "0.0-2127"]]
   :plugins [[lein-cljsbuild "1.0.1"]
