@@ -5,7 +5,7 @@
 (defn array-append [arr seq]
   "Inserts all elements from a Seq into an existing JS array."
   (doseq [v seq]
-         (.push arr v))
+    (.push arr v))
   arr)
 
 (defn visited? [visited obj]
@@ -45,8 +45,8 @@
          (doall
           (map
            #(let [key (->js (first %)  visited)
-                   val (->js (second %) visited)]
-               (aset out key val))
+                  val (->js (second %) visited)]
+              (aset out key val))
            obj))
          out))))
 

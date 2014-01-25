@@ -6,21 +6,21 @@
 ;;***************************************************************************
 ;; Identities
 ;;***************************************************************************
-(defn identity->js [v]
-  (is (introvert/->js v) v))
+(let [identity->js
+      (fn identity->js [v]
+        (is (introvert/->js v) v))]
 
+  (deftest str->js
+    (identity->js "hello!"))
 
-(deftest str->js
-  (identity->js "hello!"))
+  (deftest num->js
+    (identity->js 7))
 
-(deftest num->js
-  (identity->js 7))
+  (deftest array->js
+    (identity->js (array 1 3 7)))
 
-(deftest array->js
-  (identity->js (array 1 3 7)))
-
-(deftest obj->js
-  (identity->js (js-obj "foo" 3 "bar" "hi")))
+  (deftest obj->js
+    (identity->js (js-obj "foo" 3 "bar" "hi"))))
 
 
 ;;***************************************************************************
@@ -59,9 +59,9 @@
     (is (introvert/->js (hash-map in))
         out))
 
-(deftest atomic-map->js
-  (is (introvert/->js (atom in))
-      out)))
+  (deftest atomic-map->js
+    (is (introvert/->js (atom in))
+        out)))
 
 
 ;;***************************************************************************
@@ -79,25 +79,27 @@
 ;;***************************************************************************
 ;; Circular Refs
 ;;***************************************************************************
-(deftest CircularSeq->js
+(deftest circular-seq->js
   (let [a (atom [1])
         b [9 a]
-
         a-js (array 1)
         b-js (array 9 a-js)]
+
     (swap! a conj b)
     (.push a-js b)
+
     (is (introvert/->js b)
         b-js)))
 
-(deftest CircularMap->js
+(deftest circular-map->js
   (let [a (atom {:1 1})
         b {:9 9 :a a}
-
         a-js (js-obj "1" 1)
         b-js (js-obj "9" 9 "a" a-js)]
+
     (swap! a assoc :b b)
     (aset a-js "b" b)
+
     (is (introvert/->js b)
         b-js)))
 
