@@ -60,19 +60,14 @@
 (defn ->js
   "Converts a cljs data structure into a close JS approximation."
   ([obj flat visited]
-   (condp = (type obj)
-     cljs.core/Keyword (name obj)
-     cljs.core/Symbol  (name obj)
-     cljs.core/Atom    (->js @obj flat visited)
-
-     cljs.core/IndexedSeq        (seq->js obj flat visited)
-     cljs.core/LazySeq           (seq->js obj flat visited)
-     cljs.core/PersistentVector  (seq->js obj flat visited)
-     cljs.core/PersistentHashSet (seq->js obj flat visited)
-
-     cljs.core/PersistentArrayMap (map->js obj flat visited)
-     cljs.core/PersistentHashMap  (map->js obj flat visited)
-     obj))
+   (cond
+     (keyword? obj)      (name obj)
+     (symbol? obj)       (name obj)
+     (= (type obj) Atom) (->js @obj flat visited)
+     (seq? obj)          (seq->js obj flat visited)
+     (set? obj)          (seq->js obj flat visited)
+     (map? obj)          (map->js obj flat visited)
+     :else               obj))
 
   ([obj flat] (->js obj flat (atom {})))
   ([obj] (->js obj false (atom {}))))
