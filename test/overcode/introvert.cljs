@@ -3,12 +3,18 @@
             [cemerick.cljs.test :as test])
   (:require-macros [cemerick.cljs.test :refer (is deftest)]))
 
+(defn is=
+  "Compares JS values using deep=."
+  ([val1 val2] (is= val1 val2 nil))
+  ([val1 val2 msg]
+     (is (introvert/deep= val1 val2) msg)))
+
 ;;***************************************************************************
 ;; Identities
 ;;***************************************************************************
 (let [identity->js
       (fn identity->js [v]
-        (is (introvert/->js v) v))]
+        (is= (introvert/->js v) v))]
 
   (deftest str->js
     (identity->js "hello!"))
@@ -30,20 +36,20 @@
       out (array 1 2 "three")]
 
   (deftest IndexedSeq->js
-    (is (introvert/->js (seq in))
-        out))
+    (is= (introvert/->js (seq in))
+         out))
 
   (deftest LazySeq->js
-    (is (introvert/->js (take 3 in))
-        out))
+    (is= (introvert/->js (take 3 in))
+         out))
 
   (deftest PersistentVector->js
-    (is (introvert/->js in)
-        out))
+    (is= (introvert/->js in)
+         out))
 
   (deftest atomic-seq->js
-    (is (introvert/->js (atom in))
-        out)))
+    (is= (introvert/->js (atom in))
+         out)))
 
 
 ;;***************************************************************************
@@ -52,28 +58,28 @@
 (let [in  {"one" 1 "two" 2 "three" "three"}
       out (js-obj "one" 1 "two" 2 "three" "three")]
   (deftest PersistentArrayMap->js
-    (is (introvert/->js in)
-        out))
+    (is= (introvert/->js in)
+         out))
 
   (deftest PersistentHashMap->js
-    (is (introvert/->js (hash-map in))
-        out))
+    (is= (introvert/->js (into (hash-map) in))
+         out))
 
   (deftest atomic-map->js
-    (is (introvert/->js (atom in))
-        out)))
+    (is= (introvert/->js (atom in))
+         out)))
 
 
 ;;***************************************************************************
 ;; Recursion
 ;;***************************************************************************
 (deftest RecursiveSeq->js
-  (is (introvert/->js (seq [1 "2" :three [:four 5]]))
-      (array 1 "2" "3" (array "four" 5))))
+  (is= (introvert/->js (seq [1 "2" :three [:four 5]]))
+       (array 1 "2" "three" (array "four" 5))))
 
 (deftest RecursiveMap->js
-  (is (introvert/->js {:one 1 :two :two :three {:a "A"}})
-      (js-obj "one" 1 "two" "two" "three" (js-obj "a" "A"))))
+  (is= (introvert/->js {:one 1 :two :two :three {:a "A"}})
+       (js-obj "one" 1 "two" "two" "three" (js-obj "a" "A"))))
 
 
 ;;***************************************************************************
@@ -86,10 +92,10 @@
         b-js (array 9 a-js)]
 
     (swap! a conj b)
-    (.push a-js b)
+    (.push a-js b-js)
 
-    (is (introvert/->js b)
-        b-js)))
+    (let [result (introvert/->js b)]
+      (is (= (count result) (count b-js))))))
 
 (deftest circular-map->js
   (let [a (atom {:1 1})
@@ -98,10 +104,10 @@
         b-js (js-obj "9" 9 "a" a-js)]
 
     (swap! a assoc :b b)
-    (aset a-js "b" b)
+    (aset a-js "b" b-js)
 
-    (is (introvert/->js b)
-        b-js)))
+    (let [result (introvert/->js b)]
+      (is (= (introvert/obj-size result) (introvert/obj-size b-js))))))
 
 (deftest circular-seq->flattened-js
   (let [a (atom [1])
@@ -110,18 +116,17 @@
         b-js (array 9 a-js)]
 
     (swap! a conj b)
-    (.push a-js b)
 
-    (is (introvert/->js b true)
-        b-js)))
+    (is= (introvert/->js b true)
+         b-js)))
 
 (deftest circular-map->flattened-js
   (let [a (atom {:1 1})
         b {:9 9 :a a}
-        a-js (js-obj "1" 1 "Circular Map")
+        a-js (js-obj "1" 1 "b" "Circular Map")
         b-js (js-obj "9" 9 "a" a-js)]
 
     (swap! a assoc :b b)
 
-    (is (introvert/->js b true)
-        b-js)))
+    (is= (introvert/->js b true)
+         b-js)))
