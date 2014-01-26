@@ -1,4 +1,4 @@
-(defproject introvert "0.1.2"
+(defproject introvert "0.1.3"
   :description "A small utility belt for introspecting into clojurescript."
   :url "http://github.com/joshuafcole/introvert"
   :dependencies [[org.clojure/clojure "1.5.1"]
