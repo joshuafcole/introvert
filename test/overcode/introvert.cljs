@@ -7,10 +7,88 @@
   "Compares JS values using deep=."
   ([val1 val2] (is= val1 val2 nil))
   ([val1 val2 msg]
-     (is (introvert/deep= val1 val2) msg)))
+   (is (introvert/deep= val1 val2) msg)))
+
+(defn is-not=
+  "Compares JS values using deep=, negated."
+  ([val1 val2] (is-not= val1 val2 nil))
+  ([val1 val2 msg]
+   (is (not (introvert/deep= val1 val2)) msg)))
 
 ;;***************************************************************************
-;; Identities
+;; deep= Primitives
+;;***************************************************************************
+(deftest str-deep=
+  (is= "hello!" "hello!"))
+
+(deftest num-deep=
+  (is= 7 7))
+
+(deftest str-not-deep=
+  (is-not= "hello!" "ciao"))
+
+(deftest num-not-deep=
+  (is-not= 7 3))
+
+;;***************************************************************************
+;; deep= Sequences
+;;***************************************************************************
+(deftest arr-deep=
+  (is= (array 1 3 7) (array 1 3 7)))
+
+(deftest seq-deep=
+  (is= [1 3 7] [1 3 7]))
+
+(deftest arr-deep-deep=
+  (is= (array 1 3 (array 6 8)) (array 1 3 (array 6 8))))
+
+(deftest arr-not-deep=
+  (is-not= (array 1 3 7) (array 1 2 6)))
+
+(deftest seq-not-deep=
+  (is-not= [1 3 7] [1 2 6]))
+
+(deftest arr-deep-not-deep=
+  (is-not= (array 1 3 (array 6 8)) (array 1 3 (array 7 9))))
+
+;;***************************************************************************
+;; deep= Maps
+;;***************************************************************************
+(deftest obj-deep=
+  (is= (js-obj "foo" 3 "bar" "hi")
+                   (js-obj "foo" 3 "bar" "hi")))
+
+(deftest map-deep=
+  (is= {"foo" 3 "bar" "hi"}
+                   {"foo" 3 "bar" "hi"}))
+
+(deftest obj-deep-deep=
+  (is= (js-obj "foo" 3 "bar" (array 7 9))
+                   (js-obj "foo" 3 "bar" (array 7 9))))
+
+(deftest obj-key-not-deep=
+  (is-not= (js-obj "foo" 3 "bar" "hi")
+                   (js-obj "foo" 3 "baz" "hi")))
+
+(deftest obj-val-not-deep=
+  (is-not= (js-obj "foo" 3 "bar" "hi")
+                   (js-obj "foo" 3 "bar" "bye")))
+
+(deftest map-key-not-deep=
+  (is-not= {"foo" 3 "bar" "hi"}
+                   {"foo" 3 "baz" "hi"}))
+
+(deftest map-val-not-deep=
+  (is-not= {"foo" 3 "bar" "hi"}
+                   {"foo" 3 "bat" "bye"}))
+
+(deftest obj-deep-not-deep=
+  (is-not= (js-obj "foo" 3 "bar" (array 7 9))
+                   (js-obj "foo" 3 "bar" (array 5 3))))
+
+
+;;***************************************************************************
+;; ->js Identities
 ;;***************************************************************************
 (let [identity->js
       (fn identity->js [v]
@@ -22,7 +100,7 @@
   (deftest num->js
     (identity->js 7))
 
-  (deftest array->js
+  (deftest arr->js
     (identity->js (array 1 3 7)))
 
   (deftest obj->js
@@ -30,7 +108,7 @@
 
 
 ;;***************************************************************************
-;; Sequences
+;; ->js Sequences
 ;;***************************************************************************
 (let [in  [1 2 "three"]
       out (array 1 2 "three")]
@@ -53,7 +131,7 @@
 
 
 ;;***************************************************************************
-;; Maps
+;; ->js Maps
 ;;***************************************************************************
 (let [in  {"one" 1 "two" 2 "three" "three"}
       out (js-obj "one" 1 "two" 2 "three" "three")]
@@ -71,7 +149,7 @@
 
 
 ;;***************************************************************************
-;; Recursion
+;; ->js Recursion
 ;;***************************************************************************
 (deftest RecursiveSeq->js
   (is= (introvert/->js (seq [1 "2" :three [:four 5]]))
@@ -83,7 +161,7 @@
 
 
 ;;***************************************************************************
-;; Circular Refs
+;; ->js Circular Refs
 ;;***************************************************************************
 (deftest circular-seq->js
   (let [a (atom [1])
