@@ -20,6 +20,7 @@ Just a little library that likes sunsets, long walks on the beach, and thinking 
 (**deep=** **value1**:any **value2**:any) - Equality comparator with support for value-comparisons between raw JS objects and arrays. Also retains compatibility with cljs value equality (though it incurs a little bit of overhead).
 
 ## Changelog
+* 0.1.4 Adds support for converting whole namespaces with `->js`.
 * 0.1.3 Adds preliminary deep=, Fixes dropped support for vectors and botched test cases.
 * 0.1.2 Refines `->js` to support anything supporting ISeq, IPersistentMap, or IPersistentSet.
 * 0.1.1 Adds support for flattening circular references.
