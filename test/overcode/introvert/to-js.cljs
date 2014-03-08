@@ -75,6 +75,12 @@
   (is= (introvert/->js {:one 1 :two :two :three {:a "A"}})
        (js-obj "one" 1 "two" "two" "three" (js-obj "a" "A"))))
 
+;;***************************************************************************
+;; ->js NameSpaces
+;;***************************************************************************
+(deftest ns->js
+  (is= (introvert/->js (js-obj "test" (seq [1 "2" :three [:four 5]])))
+       (js-obj "test" (array 1 "2" "three" (array "four" 5)))))
 
 ;;***************************************************************************
 ;; ->js Circular Refs
