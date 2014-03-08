@@ -3,6 +3,9 @@
 ;;***************************************************************************
 ;; Utilities
 ;;***************************************************************************
+(defn atom? [v]
+  (= (type v) Atom))
+
 (defn arr? [v]
   "Returns if an object is a JS Array."
   (= (type v) js/Array))
@@ -74,18 +77,40 @@
   ([obj flat] (map->js obj flat (atom {})))
   ([obj] (map->js obj false (atom {}))))
 
+(defn ns->js
+  "Converts a namespace obj into a JS Object."
+  ([obj flat visited]
+   (let [was-visited (visited? visited obj)]
+     (if was-visited
+       (if flat
+         "Circular NS"
+         was-visited)
+       (let [out (js-obj)]
+         (visit! visited obj out)
+         (dorun
+          (map
+           #(let [key %
+                  val (->js (aget obj %) flat visited)]
+              (aset out key val))
+           (.keys js/Object obj)))
+         out))))
+
+  ([obj flat] (ns->js obj flat (atom {})))
+  ([obj] (ns->js obj false (atom {}))))
+
 (defn ->js
   "Converts a cljs data structure into a close JS approximation."
   ([obj flat visited]
    (cond
-     (= (type obj) Atom) (->js @obj flat visited)
-     (keyword? obj)      (name obj)
-     (symbol? obj)       (name obj)
-     (map? obj)          (map->js obj flat visited)
-     (seq? obj)          (seq->js obj flat visited)
-     (set? obj)          (seq->js obj flat visited)
-     (vector? obj)       (seq->js obj flat visited)
-     :else               obj))
+     (atom? obj)         (->js @obj flat visited)
+     (keyword? obj) (name obj)
+     (symbol? obj)  (name obj)
+     (map? obj)     (map->js obj flat visited)
+     (seq? obj)     (seq->js obj flat visited)
+     (set? obj)     (seq->js obj flat visited)
+     (vector? obj)  (seq->js obj flat visited)
+     (obj? obj)     (ns->js obj flat visited)
+     :else          obj))
 
   ([obj flat] (->js obj flat (atom {})))
   ([obj] (->js obj false (atom {}))))
