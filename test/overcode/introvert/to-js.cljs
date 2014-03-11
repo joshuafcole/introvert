@@ -112,7 +112,7 @@
 (deftest circular-seq->flattened-js
   (let [a (atom [1])
         b [9 a]
-        a-js (array 1 "Circular Seq")
+        a-js (array 1 "Circular")
         b-js (array 9 a-js)]
 
     (swap! a conj b)
@@ -123,7 +123,7 @@
 (deftest circular-map->flattened-js
   (let [a (atom {:1 1})
         b {:9 9 :a a}
-        a-js (js-obj "1" 1 "b" "Circular Map")
+        a-js (js-obj "1" 1 "b" "Circular")
         b-js (js-obj "9" 9 "a" a-js)]
 
     (swap! a assoc :b b)
