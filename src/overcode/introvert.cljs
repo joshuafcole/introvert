@@ -69,6 +69,7 @@
 
 (defn deep=
   "Compares JS values for equality by value instead of by reference."
+  ;; TODO actually check visited :)
   ([val1 val2 visited]
    (or
     (identical? val1 val2)
