@@ -17,12 +17,6 @@
 (defn obj-size [obj]
   (count (filter #(.hasOwnProperty obj %) (.keys js/Object obj))))
 
-(defn array-append [arr seq]
-  "Inserts all elements from a Seq into an existing JS array."
-  (doseq [v seq]
-    (.push arr v))
-  arr)
-
 ;;***************************************************************************
 ;; ->js
 ;;***************************************************************************
@@ -38,7 +32,9 @@
        was-visited)
      (let [out (array)]
        (swap! visited assoc obj out)
-       (array-append out (map #(->js % flat visited) obj)))))
+       (doseq [elem obj]
+         (.push out (->js elem flat visited)))
+       out)))
 
   ([obj flat] (seq->js obj flat (atom {})))
   ([obj] (seq->js obj false (atom {}))))
@@ -52,12 +48,8 @@
        was-visited)
      (let [out (js-obj)]
        (swap! visited assoc obj out)
-       (dorun
-        (map
-         #(let [key (->js (first %)  flat visited)
-                val (->js (second %) flat visited)]
-            (aset out key val))
-         obj))
+       (doseq [[key val] obj]
+         (aset out (->js key flat visited) (->js val flat visited)))
        out)))
 
   ([obj flat] (map->js obj flat (atom {})))
@@ -72,12 +64,9 @@
        was-visited)
      (let [out (js-obj)]
        (swap! visited assoc obj out)
-       (dorun
-        (map
-         #(let [key %
-                val (->js (aget obj %) flat visited)]
-            (aset out key val))
-         (.keys js/Object obj)))
+       (doseq [key (js/Object.keys obj)]
+         (let [val (->js (aget obj key) flat visited)]
+           (aset out key val)))
        out)))
 
   ([obj flat] (ns->js obj flat (atom {})))
