@@ -15,7 +15,7 @@
   (= (type v) js/Object))
 
 (defn obj-size [obj]
-  (count (filter #(.hasOwnProperty obj %) (.keys js/Object obj))))
+  (count (filter #(.hasOwnProperty obj %) (js/Object.keys obj))))
 
 ;;***************************************************************************
 ;; ->js
@@ -101,11 +101,11 @@
 
 (defn deep-obj= [val1 val2 visited]
   (and (= (obj-size val1) (obj-size val2))
-       (deep-arr= (.keys js/Object val1)
-                  (.keys js/Object val2)
+       (deep-arr= (js/Object.keys val1)
+                  (js/Object.keys val2)
                   visited)
        (every? #(deep= (aget val1 %) (aget val2 %) visited)
-               (.keys js/Object val1))))
+               (js/Object.keys val1))))
 
 (defn deep=
   "Compares JS values for equality by value instead of by reference."
