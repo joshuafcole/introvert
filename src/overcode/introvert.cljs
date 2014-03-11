@@ -46,14 +46,13 @@
 (defn seq->js
   "Converts a seq-like value into a JS Array."
   ([obj flat visited]
-   (let [was-visited (visited? visited obj)]
-     (if was-visited
-       (if flat
-         "Circular Seq"
-         was-visited)
-       (let [out (array)]
-         (visit! visited obj out)
-         (array-append out (map #(->js % flat visited) obj))))))
+   (if-let [was-visited (visited? visited obj)]
+     (if flat
+       "Circular Seq"
+       was-visited)
+     (let [out (array)]
+       (visit! visited obj out)
+       (array-append out (map #(->js % flat visited) obj)))))
 
   ([obj flat] (seq->js obj flat (atom {})))
   ([obj] (seq->js obj false (atom {}))))
@@ -61,20 +60,19 @@
 (defn map->js
   "Converts a map-like value into a JS Object."
   ([obj flat visited]
-   (let [was-visited (visited? visited obj)]
-     (if was-visited
-       (if flat
-         "Circular Map"
-         was-visited)
-       (let [out (js-obj)]
-         (visit! visited obj out)
-         (dorun
-          (map
-           #(let [key (->js (first %)  flat visited)
-                  val (->js (second %) flat visited)]
-              (aset out key val))
-           obj))
-         out))))
+   (if-let [was-visited (visited? visited obj)]
+     (if flat
+       "Circular Map"
+       was-visited)
+     (let [out (js-obj)]
+       (visit! visited obj out)
+       (dorun
+        (map
+         #(let [key (->js (first %)  flat visited)
+                val (->js (second %) flat visited)]
+            (aset out key val))
+         obj))
+       out)))
 
   ([obj flat] (map->js obj flat (atom {})))
   ([obj] (map->js obj false (atom {}))))
