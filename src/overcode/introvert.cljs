@@ -73,19 +73,18 @@
 (defn deep=
   "Compares JS values for equality by value instead of by reference."
   ([val1 val2 visited]
-   (cond
+   (or
     (identical? val1 val2)
-    true
 
-    (and (arr? val1) (arr? val2))
-    (and (= (count val1) (count val2))
+    (and (arr? val1) (arr? val2)
+         (= (count val1) (count val2))
          (every? true? (map #(deep= %1 %2 visited) val1 val2)))
 
-    (and (obj? val1) (obj? val2))
-    (and (= (obj-size val1) (obj-size val2))
+    (and (obj? val1) (obj? val2)
+         (= (obj-size val1) (obj-size val2))
          (every? true? (map #(deep= %1 %2 visited) (js/Object.keys val1) (js/Object.keys val2)))
          (every? #(deep= (aget val1 %) (aget val2 %) visited) (js/Object.keys val1)))
 
-    :else (= val1 val2)))
+    (= val1 val2)))
 
   ([val1 val2] (deep= val1 val2 (atom {}))))
