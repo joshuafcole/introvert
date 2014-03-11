@@ -23,11 +23,6 @@
     (.push arr v))
   arr)
 
-(defn visited? [visited obj]
-  "Check if a collection has been visited. If so, return its JS equivalent."
-  (if (contains? @visited obj)
-    (get @visited obj)))
-
 (defn visit!
   "Marks potentially linked objects as visited to handle circular refs."
   ([visited obj out]
@@ -46,7 +41,7 @@
 (defn seq->js
   "Converts a seq-like value into a JS Array."
   ([obj flat visited]
-   (if-let [was-visited (visited? visited obj)]
+   (if-let [was-visited (@visited obj)]
      (if flat
        "Circular Seq"
        was-visited)
@@ -60,7 +55,7 @@
 (defn map->js
   "Converts a map-like value into a JS Object."
   ([obj flat visited]
-   (if-let [was-visited (visited? visited obj)]
+   (if-let [was-visited (@visited obj)]
      (if flat
        "Circular Map"
        was-visited)
@@ -80,7 +75,7 @@
 (defn ns->js
   "Converts a namespace obj into a JS Object."
   ([obj flat visited]
-   (if-let [was-visited (visited? visited obj)]
+   (if-let [was-visited (@visited obj)]
      (if flat
        "Circular NS"
        was-visited)
