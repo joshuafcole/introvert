@@ -74,6 +74,9 @@
   "Compares JS values for equality by value instead of by reference."
   ([val1 val2 visited]
    (cond
+    (identical? val1 val2)
+    true
+
     (and (arr? val1) (arr? val2))
     (and (= (count val1) (count val2))
          (every? true? (map #(deep= %1 %2 visited) val1 val2)))
