@@ -133,9 +133,8 @@
            (deep-arr= (.keys js/Object val1)
                       (.keys js/Object val2)
                       visited))
-    (every? identity
-            (map #(deep= (aget val1 %) (aget val2 %) visited)
-                 (.keys js/Object val1)))
+    (every? #(deep= (aget val1 %) (aget val2 %) visited)
+            (.keys js/Object val1))
     false)))
 
 (defn deep=
