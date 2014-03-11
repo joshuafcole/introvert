@@ -76,11 +76,11 @@
    (cond
     (and (arr? val1) (arr? val2))
     (and (= (count val1) (count val2))
-         (every? identity (map #(deep= % %2 visited) val1 val2)))
+         (every? identity (map #(deep= %1 %2 visited) val1 val2)))
 
     (and (obj? val1) (obj? val2))
     (and (= (obj-size val1) (obj-size val2))
-         (every? identity (map #(deep= % %2 visited) (js/Object.keys val1) (js/Object.keys val2)))
+         (every? identity (map #(deep= %1 %2 visited) (js/Object.keys val1) (js/Object.keys val2)))
          (every? #(deep= (aget val1 %) (aget val2 %) visited) (js/Object.keys val1)))
 
     :else (= val1 val2)))
