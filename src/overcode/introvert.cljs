@@ -14,9 +14,6 @@
   "Returns if an object is a JS Object."
   (= (type v) js/Object))
 
-(defn obj-size [obj]
-  (count (filter #(.hasOwnProperty obj %) (js/Object.keys obj))))
-
 ;;***************************************************************************
 ;; ->js
 ;;***************************************************************************
@@ -81,8 +78,7 @@
          (every? true? (map #(deep= %1 %2 visited) val1 val2)))
 
     (and (obj? val1) (obj? val2)
-         (= (obj-size val1) (obj-size val2))
-         (every? true? (map #(deep= %1 %2 visited) (js/Object.keys val1) (js/Object.keys val2)))
+         (deep= (js/Object.keys val1) (js/Object.keys val2))
          (every? #(deep= (aget val1 %) (aget val2 %) visited) (js/Object.keys val1)))
 
     (= val1 val2)))

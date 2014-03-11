@@ -107,7 +107,7 @@
     (aset a-js "b" b-js)
 
     (let [result (introvert/->js b)]
-      (is (= (introvert/obj-size result) (introvert/obj-size b-js))))))
+      (is (= (count (js/Object.keys result)) (count (js/Object.keys b-js)))))))
 
 (deftest circular-seq->flattened-js
   (let [a (atom [1])
