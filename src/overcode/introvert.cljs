@@ -80,20 +80,19 @@
 (defn ns->js
   "Converts a namespace obj into a JS Object."
   ([obj flat visited]
-   (let [was-visited (visited? visited obj)]
-     (if was-visited
-       (if flat
-         "Circular NS"
-         was-visited)
-       (let [out (js-obj)]
-         (visit! visited obj out)
-         (dorun
-          (map
-           #(let [key %
-                  val (->js (aget obj %) flat visited)]
-              (aset out key val))
-           (.keys js/Object obj)))
-         out))))
+   (if-let [was-visited (visited? visited obj)]
+     (if flat
+       "Circular NS"
+       was-visited)
+     (let [out (js-obj)]
+       (visit! visited obj out)
+       (dorun
+        (map
+         #(let [key %
+                val (->js (aget obj %) flat visited)]
+            (aset out key val))
+         (.keys js/Object obj)))
+       out)))
 
   ([obj flat] (ns->js obj flat (atom {})))
   ([obj] (ns->js obj false (atom {}))))
