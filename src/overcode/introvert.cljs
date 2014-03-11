@@ -123,19 +123,17 @@
 
 (defn deep-arr=
   ([val1 val2 visited]
-   (if (= (count val1) (count val2))
-     (every? identity (map #(deep= % %2 visited) val1 val2))
-     false)))
+   (and (= (count val1) (count val2))
+        (every? identity (map #(deep= % %2 visited) val1 val2)))))
 
 (defn deep-obj=
   ([val1 val2 visited]
-  (if (and (= (obj-size val1) (obj-size val2))
-           (deep-arr= (.keys js/Object val1)
-                      (.keys js/Object val2)
-                      visited))
-    (every? #(deep= (aget val1 %) (aget val2 %) visited)
-            (.keys js/Object val1))
-    false)))
+  (and (= (obj-size val1) (obj-size val2))
+       (deep-arr= (.keys js/Object val1)
+                  (.keys js/Object val2)
+                  visited)
+       (every? #(deep= (aget val1 %) (aget val2 %) visited)
+               (.keys js/Object val1)))))
 
 (defn deep=
   "Compares JS values for equality by value instead of by reference."
