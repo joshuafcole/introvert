@@ -23,15 +23,6 @@
     (.push arr v))
   arr)
 
-(defn visit!
-  "Marks potentially linked objects as visited to handle circular refs."
-  ([visited obj out]
-   (swap! visited assoc obj out)
-   out)
-
-  ([visited obj] (visit! visited obj "Circular Ref")))
-
-
 ;;***************************************************************************
 ;; ->js
 ;;***************************************************************************
@@ -46,7 +37,7 @@
        "Circular Seq"
        was-visited)
      (let [out (array)]
-       (visit! visited obj out)
+       (swap! visited assoc obj out)
        (array-append out (map #(->js % flat visited) obj)))))
 
   ([obj flat] (seq->js obj flat (atom {})))
@@ -60,7 +51,7 @@
        "Circular Map"
        was-visited)
      (let [out (js-obj)]
-       (visit! visited obj out)
+       (swap! visited assoc obj out)
        (dorun
         (map
          #(let [key (->js (first %)  flat visited)
@@ -80,7 +71,7 @@
        "Circular NS"
        was-visited)
      (let [out (js-obj)]
-       (visit! visited obj out)
+       (swap! visited assoc obj out)
        (dorun
         (map
          #(let [key %
